@@ -1,0 +1,181 @@
+- name: Gaming
+  width: wide
+  desktop-navigation-width: wide
+  columns:
+    - size: small
+      widgets:
+        - type: custom-api
+          title: Steam Specials
+          cache: 12h
+          url: https://store.steampowered.com/api/featuredcategories?cc=us
+          template: |
+            <ul class="list list-gap-10 collapsible-container" data-collapse-after="5">
+            {{ range .JSON.Array "specials.items" }}
+              {{ $header := .String "header_image" }}
+              {{ $urlPrefix := "https://store.steampowered.com/sub/" }}
+              {{ if findMatch "/steam/apps/" $header }}
+                {{ $urlPrefix = "https://store.steampowered.com/app/" }}
+              {{ end }}
+              <li>
+                <a class="size-h4 color-highlight block text-truncate" href="{{ $urlPrefix }}{{ .Int "id" }}/">{{ .String "name" }}</a>
+                <ul class="list-horizontal-text">
+                  <li>{{ .Int "final_price" | toFloat | mul 0.01 | printf "$%.2f" }}</li>
+                  {{ $discount := .Int "discount_percent" }}
+                  <li{{ if ge $discount 40 }} class="color-positive"{{ end }}>{{ $discount }}% off</li>
+                </ul>
+              </li>
+            {{ end }}
+            </ul>
+            
+        - type: custom-api
+          title: Steam Top Sellers
+          cache: 12h
+          url: https://store.steampowered.com/api/featuredcategories?cc=us
+          template: |
+            <ul class="list list-gap-10 collapsible-contain" data-collapse-after="15">
+                {{ range .JSON.Array "top_sellers.items" }}
+                {{ if ne (.String "name") "Steam Deck" }}
+                <li style="display: flex; align-items: center; gap: 1rem;">
+                    <img src="{{ .String "small_capsule_image" }}" alt="{{ .String "name" }}"
+                        style="width: 120px; height: auto; border-radius: 4px; flex-shrink: 0;">
+                    <div style="min-width: 0;">
+                        <a class="size-h4 color-highlight text-truncate" style="display: block;"
+                            href="https://store.steampowered.com/app/{{ .Int "id" }}/">
+                            {{ .String "name" }}
+                        </a>
+                        <ul class="list-horizontal-text">
+                            <li>{{ div (.Int "final_price" | toFloat) 100 | printf "$%.2f" }}</li>
+                            {{ $discount := .Int "discount_percent" }}
+                            {{ if gt $discount 0 }}
+                            <li{{ if ge $discount 40 }} class="color-positive" {{ end }}>
+                                {{ $discount }}% off
+                </li>
+                {{ end }}
+            </ul>
+            </div>
+            </li>
+            {{ end }}
+            {{ end }}
+            </ul>
+
+    - size: full
+      widgets:
+      - type: videos
+        title: Youtube
+        style: grid-cards
+        limit: 12
+        include-shorts: true
+        channels:
+          - UCMNEVbszv8ZyvSXoTn3yhpQ # The Burnt Peanut
+          - UCyS4xQE6DK4_p3qXQwJQAyA # Did you know gaming
+          - UCKy1dAqELo0zrOtPkf0eTMw #IGN
+      - type: group
+        widgets:
+        - type: reddit
+          subreddit: arcraiders
+          show-thumbnails: true
+        - type: reddit
+          subreddit: gaming
+          show-thumbnails: true
+        - type: reddit
+          subreddit: games
+          show-thumbnails: true
+        - type: reddit
+          subreddit: reddeadredemption
+          show-thumbnails: true
+      - type: iframe
+        title: Arc Raiders Updates
+        source: https://arcraiders.com/news/headwinds-content-update
+        height: 600
+
+    - size: small
+      widgets:
+      - type: custom-api
+        title: Squids Recently Played Games
+        cache: 30m
+        url: http://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=68AF8D904102838D98D6715733F0B02F&steamid=76561198046289926}&format=json
+        template: |
+          <div>
+            {{ if eq .Response.StatusCode 200 }}
+              {{ $games := .JSON.Array "response.games" }}
+              {{ if gt (len $games) 0 }}
+                <ul class="list list-gap-10 collapsible-container" data-collapse-after="5">
+                  {{ range $games }}
+                    <li style="display: flex; align-items: center;">
+                      <a href="https://store.steampowered.com/app/{{ .Int "appid" }}" target="_blank">
+                        <img
+                          src="http://media.steampowered.com/steamcommunity/public/images/apps/{{ .Int "appid" }}/{{ .String "img_icon_url" }}.jpg"
+                          alt="{{ .String "name" }}"
+                          style="width: 32px; border-radius: var(--border-radius); margin-right: 10px;">
+                      </a>
+                      <div>
+                        <a
+                          href="https://store.steampowered.com/app/{{ .Int "appid" }}"
+                          class="size-base color-primary"
+                          target="_blank"
+                        >
+                          {{ .String "name" }}
+                        </a>
+                        <br>
+                        <span class="size-h5 color-subdue">
+                          Last 2 weeks: 
+                          {{ if gt (toFloat (.Int "playtime_2weeks")) 60.0 }}
+                            {{ printf "%.2f hrs" (div (toFloat (.Int "playtime_2weeks")) 60.0) }}
+                          {{ else }}
+                            {{ .Int "playtime_2weeks" }} mins
+                          {{ end }}
+                        </span>
+                      </div>
+                    </li>
+                  {{ end }}
+                </ul>
+              {{ else }}
+                <p class="color-negative">No recently played games found.</p>
+              {{ end }}
+            {{ else }}
+              <p class="color-negative">An unexpected error occurred. Please try again later.</p>
+            {{ end }}
+          </div> 
+
+      - type: custom-api
+        title: RetroAchievement of the Week
+        cache: 1h
+        url: https://retroachievements.org/API/API_GetAchievementOfTheWeek.php?y=z8J386jf7Z5Y94pGhxccBmXoUhqUCqSK
+        template: |
+          <div style="display: flex; align-items: flex-start;">
+            <div style="flex-shrink: 0; margin-right: 1em;">
+              <a href="https://retroachievements.org/achievement/{{ .JSON.Int "Achievement.ID" }}" target="_blank" rel="noopener noreferrer">
+                <img src="https://retroachievements.org{{ .JSON.String "Achievement.BadgeURL" }}" alt="Badge" style="width: 64px; height: 64px; border-radius: var(--border-radius);">
+              </a>
+            </div>
+            <div>
+              <div style="font-weight: bold; color: var(--color-accent);">
+                <a href="https://retroachievements.org/achievement/{{ .JSON.Int "Achievement.ID" }}" style="color: inherit; text-decoration: none;" target="_blank" rel="noopener noreferrer">
+                  {{ .JSON.String "Achievement.Title" }}
+                </a>
+              </div>
+              <div style="color: var(--color-subdue);">
+                {{ .JSON.String "Achievement.Description" }}
+              </div>
+              <div style="margin-top: 0.5em;">
+                <a href="https://retroachievements.org/game/{{ .JSON.Int "Game.ID" }}" style="color: var(--color-primary); font-family: monospace; font-weight: bold; text-decoration: none;" target="_blank" rel="noopener noreferrer">
+                  {{ .JSON.String "Game.Title" }}
+                </a>
+                <span style="color: var(--color-subdue); font-style: italic;">
+                  ({{ .JSON.String "Console.Title" }})
+                </span>
+              </div>
+            </div>
+          </div>
+
+      - type: rss
+        title: Gaming News
+        limit: 10
+        collapse-after: 6
+        feeds:
+          - url: https://feeds.feedburner.com/ign/news
+            title: IGN News
+            limit: 3
+          - url: https://feeds.feedburner.com/ign/games-all
+            title: IGN Game Articles
+            limit: 3            

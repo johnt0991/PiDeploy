@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    volumes:
+      - /srv/docker/data/kuma:/app/data
+
+  glance:
+    image: glanceapp/glance:latest
+    container_name: glance
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - /srv/docker/data/glance/config:/app/config
+      - /srv/docker/data/glance/assets:/app/assets
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      TZ: America/Los_Angeles

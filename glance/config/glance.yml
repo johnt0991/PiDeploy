@@ -1,0 +1,20 @@
+server:
+    assets-path: /app/assets
+
+theme:
+  custom-css-file: /assets/style.css
+
+pages:
+  - $include: home.yml
+  - $include: lab.yml
+  - $include: gaming.yml
+  - $include: projects.yml
+
+branding:
+  custom-footer: |
+    <p>Powered by a little computer trying its best</p>
+  logo-url: /assets/logo.webp
+  favicon-url: /assets/logo.webp
+  app-name: "Slice"
+  app-icon-url: "/assets/logo.webp"
+  app-background-color: "#151519"

@@ -1,0 +1,39 @@
+- name: Projects
+  width: wide
+  desktop-navigation-width: wide
+  columns:
+    - size: small
+      widgets:
+        - type: repository
+          title: CrawlSpace
+          repository: johnt0991/CrawlSpace
+          pull-requests-limit: 5
+          issues-limit: 3
+          commits-limit: 3
+
+    - size: small
+      widgets:
+        - type: repository
+          repository: johnt0991/ARCHV
+          title: ARCHV.online
+          pull-requests-limit: 5
+          token: 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
+          issues-limit: 3
+          commits-limit: 3
+
+        - type: repository
+          title: The Valley
+          token: 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
+          repository: johnt0991/TheValley
+          pull-requests-limit: 5
+          issues-limit: 3
+          commits-limit: 3
+
+    - size: full
+      widgets:
+        - type: repository
+          repository: glanceapp/glance
+          pull-requests-limit: 5
+          issues-limit: 3
+          commits-limit: 3
+

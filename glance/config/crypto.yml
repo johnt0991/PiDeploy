@@ -1,0 +1,56 @@
+- type: custom-api
+  title: Crypto Markets
+  url: "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,chain-2,loopring,polygon-ecosystem-token&order=market_cap_desc&per_page=5&page=1&sparkline=false&price_change_percentage=24h"
+  template: |
+    <div>
+      {{ if eq .Response.StatusCode 200 }}
+        {{ $coins := .JSON.Array "" }}
+        {{ if gt (len $coins) 0 }}
+          <!-- Outer container: row that fills width and wraps when needed -->
+          <div style="display: flex; flex-wrap: wrap; gap: 24px; padding: 4px 0;">
+            {{ range $coins }}
+              {{ $name := .String "name" }}
+              {{ $symbol := .String "symbol" }}
+              {{ $id := .String "id" }}
+              {{ $price := printf "%.2f" (.Float "current_price") }}
+              {{ $change := .Float "price_change_percentage_24h" }}
+              {{ $changeStr := printf "%.2f" $change }}
+
+              <!-- Each item flexes to share the row equally -->
+              <div style="display: flex; align-items: center; flex: 1 1 150px; min-width: 0;">
+                <a
+                  href="https://www.coingecko.com/en/coins/{{ $id }}"
+                  target="_blank"
+                  style="display: flex; align-items: center; text-decoration: none; width: 100%;"
+                >
+                  <img
+                    src="{{ .String "image" }}"
+                    alt="{{ $name }}"
+                    style="width: 32px; height: 32px; border-radius: var(--border-radius); margin-right: 10px; flex-shrink: 0;"
+                  >
+                  <div style="min-width: 0;">
+                    <span class="size-base color-primary">
+                      {{ $name }}
+                    </span>
+                    <span class="size-caption color-subdue"> ({{ $symbol }})</span>
+                    <br>
+                    <span class="size-h5 color-subdue">
+                      Price: ${{ $price }} ·
+                      {{ if gt $change 0.0 }}
+                        <span class="color-success">▲ {{ $changeStr }}%</span>
+                      {{ else }}
+                        <span class="color-danger">▼ {{ $changeStr }}%</span>
+                      {{ end }}
+                    </span>
+                  </div>
+                </a>
+              </div>
+            {{ end }}
+          </div>
+        {{ else }}
+          <p class="color-negative">No crypto data found.</p>
+        {{ end }}
+      {{ else }}
+        <p class="color-negative">An unexpected error occurred. Please try again later.</p>
+      {{ end }}
+    </div>

@@ -1,0 +1,13 @@
+{
+  "pi_ip": "10.0.0.46",
+  "username": "John",
+  "password": "Feb2820!5",
+  "save_password": true,
+  "deployment_folder": "",
+  "hardware_script": "",
+  "docker_compose": "Y:/Coding/rasp_pi_setup/docker_compose.yaml",
+  "glance_config_folder": "/Volumes/JohnBackup/Coding/rasp_pi_setup/glance/config",
+  "glance_assets_folder": "/Volumes/JohnBackup/Coding/rasp_pi_setup/glance/assets",
+  "kuma_backup_folder": "Y:/Coding/rasp_pi_setup/kuma_backup",
+  "systemd_service_file": ""
+}

@@ -1,0 +1,123 @@
+- name: Lab
+  width: wide
+  desktop-navigation-width: wide
+  head-widgets:
+    - type: monitor
+      title: Services
+      sites:
+        - title: Radarr
+          url: http://localhost:7878/
+          icon: /assets/radarr.png
+        - title: Sonarr
+          url: http://localhost:8989/
+          icon: /assets/sonarr.svg
+        - title: Plex
+          url: http://127.0.0.1:32400/web/
+          icon: /assets/plex.png
+        - title: SAB
+          url: http://localhost:8081/
+          icon: /assets/sab.png
+        - title: Requestrr
+          url: http://localhost:4545/
+          icon: /assets/requestrr.png
+        - title: Archv
+          url: https://archv.online
+          icon: /assets/archv.png
+
+  columns:
+    - size: full
+      widgets:
+        - type: server-stats
+          title: Computing Servers
+          servers:
+            - type: local
+              name: XPS Server
+        - type: server-stats
+          title: NAS Drives
+          servers:
+            - type: remote
+              name: File Server
+              url: http://10.0.0.13:27973
+            - type: remote
+              name: Media Server
+              url: http://10.0.0.110:27974
+
+        - type: custom-api
+          title: Cloudflared Tunnels
+          css-class: "widget-type-cloudflared"
+          url: https://api.cloudflare.com/client/v4/accounts/c4d9e300ef73663d14b9aff33009569a/cfd_tunnel/c587464d-7e2d-4fe2-b8d2-8960283c1f48/configurations
+          headers:
+            Authorization: Bearer NdfjpEAOSB8z8B_Qn1RZumgTiVyG7IvvaHNSNvte
+          template: |
+            {{ $domain_name := ".example.com" }}  {{/* Set your domain name */}}
+
+            <style>
+              .widget-type-cloudflared li {
+                margin-top: var(--list-half-gap); 
+                border-top: 1px solid var(--color-separator);
+                padding-top: var(--list-half-gap);
+              }
+            </style>
+            <ul class="dynamic-columns list-gap-15 list-with-separator">
+            {{ range .JSON.Array "result.config.ingress" }}
+              {{ if (.String "hostname") }}
+              <li class="flex items-center gap-20">
+                  <div class="shrink-0">
+                      <img class="docker-container-icon" src="https://developers.cloudflare.com/logo.svg" alt="" loading="lazy">
+                  </div>
+                  <div class="min-width-0 grow">
+                    <a href='https://{{ .String "hostname" }}' class="color-highlight size-title-dynamic block text-truncate" target="_blank" rel="noreferrer">{{ .String "hostname" | trimSuffix $domain_name }}</a>
+                    {{ if (.String "service") }}
+                    <div class="flex items-center gap-10" style="margin-bottom: 5px">
+                      <div class="text-left">
+                        <img src="assets/arrow.png" style="width: auto; height: 20px; margin-left: 0px; margin-top: -4px;">
+                      </div>
+                      <div class="size-h6 flex-1 text-left">
+                        <a href='{{ .String "service" | replaceAll "localhost" "192.168.0.150" }}' target="_blank" rel="noreferrer">{{ .String "service" }}</a>
+                      </div>
+                    </div>
+                    {{ end}}
+                  </div>
+              </li>
+              {{ end }}
+            {{ end }}
+            </ul>
+
+        - type: group
+          widgets:
+          - type: reddit
+            subreddit: selfhosted
+            show-thumbnails: true
+            limit: 10
+            collapse-after: 10
+          - type: reddit
+            subreddit: arduino
+            show-thumbnails: true
+            limit: 10
+            collapse-after: 10
+          - type: reddit
+            subreddit: cybersecurity
+            show-thumbnails: true
+            limit: 10
+            collapse-after: 10
+          - type: reddit
+            subreddit: HowToHack
+            show-thumbnails: true 
+            limit: 10     
+            collapse-after: 10      
+          - type: reddit
+            subreddit: RASPBERRY_PI_PROJECTS
+            show-thumbnails: true
+            limit: 10
+            collapse-after: 10
+
+    - size: small
+      widgets:
+        - type: videos
+          title: Youtube
+          style: grid-cards
+          channels:
+            - UCXuqSBlHAE6Xw-yeJA0Tunw # Linus Tech Tips
+            - UCqFzWxSCi39LnW1JKFR3efg # SNL
+            - UC8-Th83bH_thdKZDJCrn88g # Jimmy Fallon
+            - UCJnS2EsPfv46u1JR8cnD0NA # NPR
