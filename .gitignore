@@ -12,3 +12,4 @@ website_paths.json
 
 # Service backups
 kuma_backup/
+glance/
