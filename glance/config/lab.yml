@@ -1,37 +1,87 @@
 - name: Lab
   width: wide
   desktop-navigation-width: wide
-  head-widgets:
-    - type: monitor
-      title: Services
-      sites:
-        - title: Radarr
-          url: http://localhost:7878/
-          icon: /assets/radarr.png
-        - title: Sonarr
-          url: http://localhost:8989/
-          icon: /assets/sonarr.svg
-        - title: Plex
-          url: http://127.0.0.1:32400/web/
-          icon: /assets/plex.png
-        - title: SAB
-          url: http://localhost:8081/
-          icon: /assets/sab.png
-        - title: Requestrr
-          url: http://localhost:4545/
-          icon: /assets/requestrr.png
-        - title: Archv
-          url: https://archv.online
-          icon: /assets/archv.png
-
   columns:
     - size: full
       widgets:
         - type: server-stats
-          title: Computing Servers
+          title: Dashboard Servers
           servers:
             - type: local
-              name: XPS Server
+              name: Raspberry Pi
+        - type: custom-api
+          title: Media Servers
+          css-class: widget-type-server-stats-custom
+          url: "http://10.0.0.90:27974/?token=2uc3KLKIEi48SMwGeaRd6g5BB1X9b0lYptGNuxwr6Go9q0d7GV"
+          cache: 1m
+          template: |
+            <div class="server">
+              <div class="server-info">
+                <div class="server-details">
+                  <div class="server-name color-highlight size-h3">Plex Server</div>
+                  <div>live API stats</div>
+                </div>
+                <div class="shrink-0">
+                  <svg class="server-icon" stroke="var(--color-positive)" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 17.25v-.228a4.5 4.5 0 0 0-.12-1.03l-2.268-9.64a3.375 3.375 0 0 0-3.285-2.602H7.923a3.375 3.375 0 0 0-3.285 2.602l-2.268 9.64a4.5 4.5 0 0 0-.12 1.03v.228m19.5 0a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3m19.5 0a3 3 0 0 0-3-3H5.25a3 3 0 0 0-3 3m16.5 0h.008v.008h-.008v-.008Zm-3 0h.008v.008h-.008v-.008Z" />
+                  </svg>
+                </div>
+              </div>
+              <div class="server-stats">
+                <div class="flex-1">
+                  <div class="flex items-end size-h5">
+                    <div>CPU</div>
+                    <div class="color-highlight margin-left-auto text-very-compact">{{ .JSON.Float "cpu" }} <span class="color-base">%</span></div>
+                  </div>
+                  <div class="progress-bar progress-bar-combined">
+                    <div class="progress-value{{ if ge (.JSON.Float "cpu") 85.0 }} progress-value-notice{{ end }}" style="--percent: {{ .JSON.Float "cpu" }}"></div>
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between items-end size-h5">
+                    <div>RAM</div>
+                    <div class="color-highlight text-very-compact">{{ .JSON.Float "memory.usedPercent" }} <span class="color-base">%</span></div>
+                  </div>
+                  <div data-popover-type="html">
+                    <div data-popover-html>
+                      <div class="flex">
+                        <div class="size-h5">RAM</div>
+                        <div class="value-separator"></div>
+                        <div class="color-highlight text-very-compact">{{ .JSON.Float "memory.usedGB" }} <span class="color-base size-h5">GB /</span> {{ .JSON.Float "memory.totalGB" }} <span class="color-base size-h5">GB</span></div>
+                      </div>
+                    </div>
+                    <div class="progress-bar progress-bar-combined">
+                      <div class="progress-value{{ if ge (.JSON.Float "memory.usedPercent") 85.0 }} progress-value-notice{{ end }}" style="--percent: {{ .JSON.Float "memory.usedPercent" }}"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between items-end size-h5">
+                    <div>DISK</div>
+                    <div class="color-highlight text-very-compact">{{ .JSON.Float "disks.0.usedPercent" }} <span class="color-base">%</span></div>
+                  </div>
+                  <div data-popover-type="html">
+                    <div data-popover-html>
+                      <ul class="list list-gap-2">
+                        {{ range .JSON.Array "disks" }}
+                        <li class="flex">
+                          <div class="size-h5">{{ .String "name" }} {{ .String "label" }}</div>
+                          <div class="value-separator"></div>
+                          <div class="color-highlight text-very-compact">{{ .Float "usedGB" }} <span class="color-base size-h5">GB /</span> {{ .Float "sizeGB" }} <span class="color-base size-h5">GB</span></div>
+                        </li>
+                        {{ end }}
+                      </ul>
+                    </div>
+                    <div class="progress-bar progress-bar-combined">
+                      <div class="progress-value{{ if ge (.JSON.Float "disks.0.usedPercent") 85.0 }} progress-value-notice{{ end }}" style="--percent: {{ .JSON.Float "disks.0.usedPercent" }}"></div>
+                      {{ if ge (len (.JSON.Array "disks")) 2 }}
+                      <div class="progress-value{{ if ge (.JSON.Float "disks.1.usedPercent") 85.0 }} progress-value-notice{{ end }}" style="--percent: {{ .JSON.Float "disks.1.usedPercent" }}"></div>
+                      {{ end }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
         - type: server-stats
           title: NAS Drives
           servers:
@@ -110,14 +160,7 @@
             show-thumbnails: true
             limit: 10
             collapse-after: 10
+          - type: reddit
+            subreddit: ArtificialInteligence
+            show-thumbnails: true               
 
-    - size: small
-      widgets:
-        - type: videos
-          title: Youtube
-          style: grid-cards
-          channels:
-            - UCXuqSBlHAE6Xw-yeJA0Tunw # Linus Tech Tips
-            - UCqFzWxSCi39LnW1JKFR3efg # SNL
-            - UC8-Th83bH_thdKZDJCrn88g # Jimmy Fallon
-            - UCJnS2EsPfv46u1JR8cnD0NA # NPR

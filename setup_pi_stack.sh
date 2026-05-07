@@ -65,6 +65,18 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       TZ: America/Los_Angeles
+
+  steam-achievements-api:
+    image: python:3.12-alpine
+    container_name: steam-achievements-api
+    restart: unless-stopped
+    command: python /app/steam_achievements_api.py
+    volumes:
+      - /srv/docker/data/glance/assets:/app:ro
+    environment:
+      TZ: America/Los_Angeles
+      STEAM_API_KEY: 68AF8D904102838D98D6715733F0B02F
+      STEAM_ID: "76561198046289926"
 EOF
 
 echo "🚀 Starting containers..."

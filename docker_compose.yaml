@@ -23,3 +23,41 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       TZ: America/Los_Angeles
+
+  steam-achievements-api:
+    image: python:3.12-alpine
+    container_name: steam-achievements-api
+    restart: unless-stopped
+    command: python /app/steam_achievements_api.py
+    volumes:
+      - /srv/docker/data/glance/assets:/app:ro
+    environment:
+      TZ: America/Los_Angeles
+      STEAM_API_KEY: 68AF8D904102838D98D6715733F0B02F
+      STEAM_ID: "76561198046289926"
+
+
+
+  # BEGIN DEPLOY TOOL WEBSITE arctrak-site
+  arctrak-site:
+    image: node:20-bookworm-slim
+    container_name: arctrak-site
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm ci --omit=dev && node server.js"
+    ports:
+      - "4002:3000"
+    volumes:
+      - /srv/docker/data/websites/arctrak:/app
+  # END DEPLOY TOOL WEBSITE arctrak-site
+
+  # BEGIN DEPLOY TOOL DISCORD BOT odin-bot-bot
+  odin-bot-bot:
+    image: node:20-bookworm-slim
+    container_name: odin-bot-bot
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "if [ -f package-lock.json ]; then npm ci --omit=dev; elif [ -f package.json ]; then npm install --omit=dev; fi && node index.js"
+    volumes:
+      - /srv/docker/data/discord-bots/odin-bot:/app
+  # END DEPLOY TOOL DISCORD BOT odin-bot-bot

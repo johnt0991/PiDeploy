@@ -8,7 +8,9 @@ pages:
   - $include: home.yml
   - $include: lab.yml
   - $include: gaming.yml
+  - $include: links.yml
   - $include: projects.yml
+
 
 branding:
   custom-footer: |

@@ -1,84 +1,6 @@
 - name: Home
   width: wide
   desktop-navigation-width: wide
-  head-widgets:
-    - type: markets
-      markets:
-        - symbol: DIS
-          name: Disney
-        - symbol: IIPR
-          name: IIPR
-        - symbol: INTC
-          name: Intel
-        - symbol: SBLX
-          name: StableX
-        - symbol: MAT
-          name: Mattel
-        - symbol: META
-          name: META
-        - symbol: CSCO
-          name: Cisco
-        - symbol: AAPL
-          name: Apple
-
-    - type: custom-api
-      title: Crypto Markets
-      url: "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,chain-2,loopring,polygon-ecosystem-token&order=market_cap_desc&per_page=5&page=1&sparkline=false&price_change_percentage=24h"
-      template: |
-        <div>
-          {{ if eq .Response.StatusCode 200 }}
-            {{ $coins := .JSON.Array "" }}
-            {{ if gt (len $coins) 0 }}
-              <!-- Outer container: row that fills width and wraps when needed -->
-              <div style="display: flex; flex-wrap: wrap; gap: 24px; padding: 4px 0;">
-                {{ range $coins }}
-                  {{ $name := .String "name" }}
-                  {{ $symbol := .String "symbol" }}
-                  {{ $id := .String "id" }}
-                  {{ $price := printf "%.2f" (.Float "current_price") }}
-                  {{ $change := .Float "price_change_percentage_24h" }}
-                  {{ $changeStr := printf "%.2f" $change }}
-
-                  <!-- Each item flexes to share the row equally -->
-                  <div style="display: flex; align-items: center; flex: 1 1 150px; min-width: 0;">
-                    <a
-                      href="https://www.coingecko.com/en/coins/{{ $id }}"
-                      target="_blank"
-                      style="display: flex; align-items: center; text-decoration: none; width: 100%;"
-                    >
-                      <img
-                        src="{{ .String "image" }}"
-                        alt="{{ $name }}"
-                        style="width: 32px; height: 32px; border-radius: var(--border-radius); margin-right: 10px; flex-shrink: 0;"
-                      >
-                      <div style="min-width: 0;">
-                        <span class="size-base color-primary">
-                          {{ $name }}
-                        </span>
-                        <span class="size-caption color-subdue"> ({{ $symbol }})</span>
-                        <br>
-                        <span class="size-h5 color-subdue">
-                          Price: ${{ $price }} ·
-                          {{ if gt $change 0.0 }}
-                            <span class="color-success">▲ {{ $changeStr }}%</span>
-                          {{ else }}
-                            <span class="color-danger">▼ {{ $changeStr }}%</span>
-                          {{ end }}
-                        </span>
-                      </div>
-                    </a>
-                  </div>
-                {{ end }}
-              </div>
-            {{ else }}
-              <p class="color-negative">No crypto data found.</p>
-            {{ end }}
-          {{ else }}
-            <p class="color-negative">An unexpected error occurred. Please try again later.</p>
-          {{ end }}
-        </div>
-
-
 
   columns:
     - size: small
@@ -105,13 +27,20 @@
             - type: videos
               title: Youtube
               style: grid-cards
+              include-shorts: true
+              limit: 30
+              collapse-after-rows: 3
               channels:
                 - UCXuqSBlHAE6Xw-yeJA0Tunw # Linus Tech Tips
                 - UCqFzWxSCi39LnW1JKFR3efg # SNL
                 - UC8-Th83bH_thdKZDJCrn88g # Jimmy Fallon
                 - UCJnS2EsPfv46u1JR8cnD0NA # NPR
-                - UCPD_bxCRGpmmeQcbe2kpPaA #First We Feast
+                - UCPD_bxCRGpmmeQcbe2kpPaA # First We Feast
                 - UCc9CjaAjsMMvaSghZB7-Kog # Beard Meats Food
+                - UCpbWmV3trWP4kqbNawlXIcQ # Jeff Arcuri
+                - UCXGR70CkW_pXb8n52LzCCRw # Mythical Kitchen
+                - UCLe_q9axMaeTbjN0hy1Z9xA # Caleb Hammer
+                - UCMSYZVlQmyG8_2MkIKzg0kw # The Iced Coffee Hour
             - type: rss
               title: Recipes
               limit: 20
@@ -124,6 +53,11 @@
                   title: Budget Bytes              
                 - url: https://thesouthernladycooks.com/feed/
                   title: The Southern Lady Cooks   
+                - url: https://spicysouthernkitchen.com/feed/
+                  title: Spicy Southern Kitchen
+                - url: https://southernbite.com/feed/
+                  title: Southern Bite
+  
 
         - type: group
           widgets:
@@ -131,14 +65,24 @@
               subreddit: lol
               show-thumbnails: true
             - type: reddit
-              subreddit: ArtificialInteligence
+              subreddit: news
+              show-thumbnails: true        
+            - type: reddit
+              subreddit: Unexpected
+              show-thumbnails: true      
+            - type: reddit
+              subreddit: ComedyHeaven
+              show-thumbnails: true
+            - type: reddit
+              subreddit: worldnews
               show-thumbnails: true            
             - type: reddit
-              subreddit: news
-              show-thumbnails: true                         
+              subreddit: mildlyinteresting
+              show-thumbnails: true        
             - type: reddit
-              subreddit: wallstreetbets
-              show-thumbnails: true
+              subreddit: ContagiousLaughter
+              show-thumbnails: true                            
+
 
     - size: small
       widgets:
@@ -152,4 +96,7 @@
               limit: 3
             - url: https://feeds.npr.org/1001/rss.xml
               title: NPR Top Stories
+              limit: 3
+            - url: https://abc7news.com/feed/
+              title: ABC7 Bay Area
               limit: 3

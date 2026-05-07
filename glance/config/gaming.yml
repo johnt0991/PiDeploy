@@ -60,15 +60,99 @@
 
     - size: full
       widgets:
+      
+      - type: custom-api
+        title: Recent Steam Achievements
+        css-class: widget-type-steam-achievements
+        cache: 1h
+        url: http://steam-achievements-api:8095/recent-achievements?limit=10
+        template: |
+          {{ if eq .Response.StatusCode 200 }}
+            {{ $achievements := .JSON.Array "achievements" }}
+            {{ if gt (len $achievements) 0 }}
+              <ul class="steam-achievement-list list list-gap-10">
+                {{ range $achievements }}
+                <li class="steam-achievement-card flex items-start gap-15">
+                  {{ if (.String "icon") }}
+                  <a class="shrink-0" href="{{ .String "achievement_url" }}" target="_blank" rel="noreferrer">
+                    <img src="{{ .String "icon" }}" alt="" loading="lazy" style="width: 48px; height: 48px; border-radius: var(--border-radius);">
+                  </a>
+                  {{ else }}
+                  <div class="steam-achievement-icon-placeholder shrink-0"></div>
+                  {{ end }}
+                  <div class="min-width-0 grow">
+                    <a class="steam-achievement-title color-highlight size-h4 block text-truncate" href="{{ .String "achievement_url" }}" target="_blank" rel="noreferrer">{{ .String "display_name" }}</a>
+                    <div class="steam-achievement-game color-subdue size-h5 text-truncate">{{ .String "game_name" }}</div>
+                    {{ if (.String "description") }}
+                    <div class="steam-achievement-description size-h5 color-primary">{{ .String "description" }}</div>
+                    {{ end }}
+                    <div class="steam-achievement-meta size-h6 color-subdue margin-top-3">Unlocked {{ .String "unlock_date" }}</div>
+                  </div>
+                </li>
+                {{ end }}
+              </ul>
+            {{ else }}
+              <p class="color-negative">No recent Steam achievements found.</p>
+            {{ end }}
+          {{ else }}
+            <p class="color-negative">Steam achievements API is unavailable.</p>
+          {{ end }}
+
+      - type: custom-api
+        title: Steam Achievement Challenge
+        css-class: widget-type-steam-achievement-challenge
+        cache: 5m
+        url: http://steam-achievements-api:8095/weekly-challenge?count=3
+        template: |
+          {{ if eq .Response.StatusCode 200 }}
+            {{ $challenges := .JSON.Array "challenges" }}
+            {{ if gt (len $challenges) 0 }}
+              <ul class="steam-achievement-list list list-gap-10">
+                {{ range $challenges }}
+                <li class="steam-achievement-card{{ if .Bool "completed" }} is-complete{{ end }} flex items-start gap-15">
+                  {{ if (.String "icongray") }}
+                  <a class="shrink-0" href="{{ .String "achievement_url" }}" target="_blank" rel="noreferrer">
+                    <img src="{{ .String "icongray" }}" alt="" loading="lazy" style="width: 48px; height: 48px; border-radius: var(--border-radius);">
+                  </a>
+                  {{ else }}
+                  <div class="steam-achievement-icon-placeholder shrink-0"></div>
+                  {{ end }}
+                  <div class="min-width-0 grow">
+                    <a class="steam-achievement-title color-highlight size-h4 block text-truncate" href="{{ .String "achievement_url" }}" target="_blank" rel="noreferrer">{{ .String "display_name" }}</a>
+                    <a class="steam-achievement-game color-primary size-h5 block text-truncate" href="{{ .String "store_url" }}" target="_blank" rel="noreferrer">{{ .String "game_name" }}</a>
+                    {{ if (.String "description") }}
+                    <div class="steam-achievement-description size-h5 color-subdue">{{ .String "description" }}</div>
+                    {{ else }}
+                    <div class="steam-achievement-description size-h5 color-subdue">Hidden or mystery achievement.</div>
+                    {{ end }}
+                    {{ if .Bool "completed" }}
+                    <div class="steam-achievement-meta size-h6 color-success margin-top-3">Completed {{ .String "unlock_date" }}</div>
+                    {{ end }}
+                  </div>
+                </li>
+                {{ end }}
+              </ul>
+              <div class="size-h6 color-subdue margin-top-10">Refreshes Monday at 6:00 AM</div>
+            {{ else }}
+              <p class="color-negative">No locked Steam achievements found for this week.</p>
+            {{ end }}
+          {{ else }}
+            <p class="color-negative">Steam achievement challenge is unavailable.</p>
+          {{ end }}
+          
+                
       - type: videos
         title: Youtube
         style: grid-cards
-        limit: 12
         include-shorts: true
+        limit: 30
+        collapse-after-rows: 3
         channels:
-          - UCMNEVbszv8ZyvSXoTn3yhpQ # The Burnt Peanut
+          - UCto7D1L-MiRoOziCXK9uT5Q # Letsgameitout
           - UCyS4xQE6DK4_p3qXQwJQAyA # Did you know gaming
-          - UCKy1dAqELo0zrOtPkf0eTMw #IGN
+          - UCHdos0HAIEhIMqUc9L3vh1w #Dorkly
+          - UCETZ4AkABYwBRzpWBJ33KUw # Bobby Ivar
+
       - type: group
         widgets:
         - type: reddit
@@ -83,10 +167,12 @@
         - type: reddit
           subreddit: reddeadredemption
           show-thumbnails: true
-      - type: iframe
-        title: Arc Raiders Updates
-        source: https://arcraiders.com/news/headwinds-content-update
-        height: 600
+        - type: reddit
+          subreddit: crosswind
+          show-thumbnails: true
+        - type: reddit
+          subreddit: unrealengine5
+          show-thumbnails: true          
 
     - size: small
       widgets:
@@ -136,37 +222,27 @@
               <p class="color-negative">An unexpected error occurred. Please try again later.</p>
             {{ end }}
           </div> 
+      - type: bookmarks
+        groups:
+          - title: Interactive Game Maps
+            links:
+              - title: Windrose
+                url: https://windrose.tools/map?layout=cfe2aa209f136f93
+                icon: /assets/windrose.png
+              - title: Valheim
+                url: https://valheim-map.world/index.html
+                icon: /assets/valheim.jpg
+              - title: Arc Raiders
+                url: https://mapgenie.io/arc-raiders
+                icon: /assets/arcraiders.png
+              - title: DayZ
+                url: https://www.izurvive.com/
+                icon: /assets/dayz.ico
+              - title: Icarus
+                url: https://mapgenie.io/icarus/maps/icarus
+                icon: /assets/icarus.ico
+                
 
-      - type: custom-api
-        title: RetroAchievement of the Week
-        cache: 1h
-        url: https://retroachievements.org/API/API_GetAchievementOfTheWeek.php?y=z8J386jf7Z5Y94pGhxccBmXoUhqUCqSK
-        template: |
-          <div style="display: flex; align-items: flex-start;">
-            <div style="flex-shrink: 0; margin-right: 1em;">
-              <a href="https://retroachievements.org/achievement/{{ .JSON.Int "Achievement.ID" }}" target="_blank" rel="noopener noreferrer">
-                <img src="https://retroachievements.org{{ .JSON.String "Achievement.BadgeURL" }}" alt="Badge" style="width: 64px; height: 64px; border-radius: var(--border-radius);">
-              </a>
-            </div>
-            <div>
-              <div style="font-weight: bold; color: var(--color-accent);">
-                <a href="https://retroachievements.org/achievement/{{ .JSON.Int "Achievement.ID" }}" style="color: inherit; text-decoration: none;" target="_blank" rel="noopener noreferrer">
-                  {{ .JSON.String "Achievement.Title" }}
-                </a>
-              </div>
-              <div style="color: var(--color-subdue);">
-                {{ .JSON.String "Achievement.Description" }}
-              </div>
-              <div style="margin-top: 0.5em;">
-                <a href="https://retroachievements.org/game/{{ .JSON.Int "Game.ID" }}" style="color: var(--color-primary); font-family: monospace; font-weight: bold; text-decoration: none;" target="_blank" rel="noopener noreferrer">
-                  {{ .JSON.String "Game.Title" }}
-                </a>
-                <span style="color: var(--color-subdue); font-style: italic;">
-                  ({{ .JSON.String "Console.Title" }})
-                </span>
-              </div>
-            </div>
-          </div>
 
       - type: rss
         title: Gaming News

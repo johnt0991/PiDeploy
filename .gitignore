@@ -1,0 +1,14 @@
+# macOS metadata
+.DS_Store
+._*
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local/generated path files
+discord_bot_paths.json
+website_paths.json
+
+# Service backups
+kuma_backup/
