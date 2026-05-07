@@ -75,9 +75,18 @@ services:
       - /srv/docker/data/glance/assets:/app:ro
     environment:
       TZ: America/Los_Angeles
-      STEAM_API_KEY: 68AF8D904102838D98D6715733F0B02F
-      STEAM_ID: "76561198046289926"
+      STEAM_API_KEY: \${STEAM_API_KEY:?Set STEAM_API_KEY in .env}
+      STEAM_ID: \${STEAM_ID:?Set STEAM_ID in .env}
 EOF
+
+if [ ! -f /srv/docker/compose/core/.env ]; then
+  echo "Creating placeholder .env for Steam widgets..."
+  cat <<EOF > /srv/docker/compose/core/.env
+STEAM_API_KEY=replace-me
+STEAM_ID=replace-me
+EOF
+  echo "Edit /srv/docker/compose/core/.env with your real Steam values, then restart the stack."
+fi
 
 echo "🚀 Starting containers..."
 cd /srv/docker/compose/core

@@ -1887,6 +1887,31 @@ class PiDeployTool:
         with SCPClient(ssh.get_transport()) as scp:
             scp.put(local_file, remote_file)
 
+    def local_compose_env_path(self, compose_path):
+        env_path = os.path.join(os.path.dirname(os.path.abspath(compose_path)), ".env")
+        return env_path if os.path.isfile(env_path) else None
+
+    def sync_docker_env(self, ssh, compose_path):
+        local_env = self.local_compose_env_path(compose_path)
+        remote_env = f"{REMOTE_DOCKER_DIR}/.env"
+
+        if local_env:
+            self.upload_file(ssh, local_env, remote_env)
+            self.run(ssh, f"chmod 600 {shlex.quote(remote_env)}")
+            self.log("Docker .env uploaded.")
+            return
+
+        self.run(
+            ssh,
+            "cd "
+            + shlex.quote(REMOTE_DOCKER_DIR)
+            + " && if [ ! -f .env ]; then "
+            + "printf '%s\n' 'STEAM_API_KEY=replace-me' 'STEAM_ID=replace-me' > .env; "
+            + "chmod 600 .env; "
+            + "echo 'Created placeholder .env. Edit it with real Steam values before using Steam widgets.'; "
+            + "else echo 'Existing Docker .env preserved.'; fi"
+        )
+
     def upload_folder_contents(self, ssh, local_folder, remote_folder):
         self.log(f"Uploading folder contents: {local_folder} -> {remote_folder}")
         self.provision_log_write(f"↑ Uploading folder: {os.path.basename(local_folder)}")
@@ -2026,7 +2051,9 @@ class PiDeployTool:
             self.run(ssh, f"sudo mkdir -p {REMOTE_HARDWARE_DIR}", sudo_password=True)
             self.run(ssh, f"sudo chown -R {user}:{user} /srv/docker {REMOTE_HARDWARE_DIR}", sudo_password=True)
 
-            self.upload_file(ssh, self.path_vars["docker_compose"].get(), f"{REMOTE_DOCKER_DIR}/docker-compose.yml")
+            compose_path = self.path_vars["docker_compose"].get()
+            self.upload_file(ssh, compose_path, f"{REMOTE_DOCKER_DIR}/docker-compose.yml")
+            self.sync_docker_env(ssh, compose_path)
             self.upload_file(ssh, self.path_vars["hardware_script"].get(), f"{REMOTE_HARDWARE_DIR}/pi_assembly.py")
             self.upload_file(ssh, self.path_vars["systemd_service_file"].get(), "/tmp/pi-panel.service")
 
@@ -2608,6 +2635,7 @@ class PiDeployTool:
             self.run(ssh, f"mkdir -p {shlex.quote(remote_path)}")
             self.upload_website_folder_contents(ssh, local_path, remote_path)
             self.upload_file(ssh, compose_path, f"{REMOTE_DOCKER_DIR}/docker-compose.yml")
+            self.sync_docker_env(ssh, compose_path)
 
             for entry in bot["entries"]:
                 self.run(ssh, self.compose_service_command(entry["service_name"], "up -d"))
@@ -3003,6 +3031,7 @@ class PiDeployTool:
             self.run(ssh, f"mkdir -p {shlex.quote(REMOTE_DOCKER_DIR)}")
             self.run(ssh, f"cp {REMOTE_DOCKER_DIR}/docker-compose.yml {REMOTE_DOCKER_DIR}/docker-compose.yml.bak 2>/dev/null || true")
             self.upload_file(ssh, compose_path, f"{REMOTE_DOCKER_DIR}/docker-compose.yml")
+            self.sync_docker_env(ssh, compose_path)
             self.run(ssh, f"cd {REMOTE_DOCKER_DIR} && docker compose up -d")
             ssh.close()
             self.log("Docker compose replaced and stack started from the corrected file.")

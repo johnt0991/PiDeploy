@@ -62,7 +62,20 @@ The API reads Steam settings from environment variables in `docker_compose.yaml`
 - `PORT`
 - `TZ`
 
-Before putting this repo on a public GitHub repo, replace private Steam values with your own local values or environment based secrets.
+Create a `.env` file next to the Docker Compose file on the Pi:
+
+```text
+/srv/docker/compose/core/.env
+```
+
+Use this format:
+
+```text
+STEAM_API_KEY=your-steam-api-key
+STEAM_ID=your-steam-id
+```
+
+The repo includes `.env.example` as a template. Do not commit your real `.env` file.
 
 ### Node Websites
 
@@ -170,6 +183,26 @@ Common values for this repo:
 Docker Compose: docker_compose.yaml
 Glance Config Folder: glance/config
 Glance Assets Folder: glance/assets
+```
+
+If you use the Steam widgets, create this file on the Pi before starting or restarting the stack:
+
+```bash
+cd /srv/docker/compose/core
+nano .env
+```
+
+Add:
+
+```text
+STEAM_API_KEY=your-steam-api-key
+STEAM_ID=your-steam-id
+```
+
+Then restart the stack:
+
+```bash
+docker compose up -d
 ```
 
 You can also add:
