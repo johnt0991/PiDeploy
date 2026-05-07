@@ -1,4 +1,0 @@
-[2026-04-16 22:09:31] [Error: insert into `heartbeat` (`down_count`, `duration`, `important`, `monitor_id`, `msg`, `status`, `time`) values (0, 0, true, 4, 'timeout of 48000ms exceeded', 0, '2026-04-17 05:08:43.557') - SQLITE_CONSTRAINT: FOREIGN KEY constraint failed] {
-  errno: 19,
-  code: 'SQLITE_CONSTRAINT'
-}
